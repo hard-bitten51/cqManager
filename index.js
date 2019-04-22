@@ -2,18 +2,49 @@
 const express = require('express')
 const dbHelper = require('./libs/dbHelper')
 const path = require('path')
-
+//post请求使用的中间件
 const bodyParser = require('body-parser')
 
 const multer = require('multer')
 var upload = multer({dest:'./views/imgs'})
+
+var svgCaptcha = require('svg-captcha');
+//cookie模块
+var cookieSession = require('cookie-session')
+
+//-------------------------------------------
 // 实例化服务器对象
 const app = express()
 // 托管静态资源
 app.use(express.static('views'))
 //注册body-parser的中间件
 app.use(bodyParser.urlencoded({ extended: false }))
-
+//注册中间件
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2'],
+  //cookie options
+  maxAge: 24*60*60*1000 //24Hr
+}))
+ 
+app.use((req, res, next)=> {
+  // console.log(req);
+  
+  if(req.url.indexOf('/hero')===0){
+    //必须登陆才可以使用  登陆的依据
+    if (req.session.userName) {
+     //说明已登陆 
+     next()
+    }else{
+      res.send({
+        msg:'请先登陆',
+        code:400
+      })
+    }
+  }else{
+    next()
+  }
+})
 // 路由1 英雄列表 带分页 带查询
 app.get('/heroList', (req, res) => {
     // console.log(req.query);
@@ -149,13 +180,17 @@ app.get('/heroDelete',(req,res)=>{
         }
     )
 })
-//用户注册的接口
+// 路由6 :用户注册的接口
 app.post('/register',(req,res)=>{
+  // console.log(req.body.userName);
+  
   //判断
-  deHelper.find('userlist',{username:req.body.username},result=>{
+  dbHelper.find('userlist',{username:req.body.userName},result=>{
+    // console.log(req.body.username);
+    
     if(result.length === 0){
       //没有被用过 保存
-      deHelper.insertOne('userlist',req.body,result=>{
+      dbHelper.insertOne('userlist',req.body,result=>{
         res.send({
           msg:'success!',
           code:200
@@ -167,6 +202,63 @@ app.post('/register',(req,res)=>{
         code:400
       })
     }
+  })
+})
+
+//路由7： 随机验证码
+app.get('/captcha', function (req, res) {
+  var captcha = svgCaptcha.create();
+  req.session.vcode = captcha.text;
+  console.log(captcha.text);
+  
+  res.type('svg');
+  res.status(200).send(captcha.data);
+})
+//路由8 : 登陆接口
+app.post('/login',(req,res)=>{
+  //获取数据
+  const userName = req.body.userName
+  const password = req.body.userPass
+  const vcode = req.body.vCode
+  console.log(password);
+  // console.log(req.session.vcode.toLowerCase());
+  // return
+  //验证码               
+  if (req.session.vcode.toLowerCase()===vcode.toLowerCase()) {
+    dbHelper.find('userlist',{userName,password},result=>{
+      // console.log(result);
+      
+      if (result.length != 0) {
+        //找到匹配的用户信息
+        req.session.userName = userName
+        //登陆成功
+        res.send({
+          msg:'Welcome Back!',
+          code:200,
+          userName
+        })
+      }else{
+        res.send({
+          msg:'用户名或密码错误，请重新输入',
+          code:400
+        })
+      }
+    })
+  }else{
+    res.send({
+      msg:'验证码错了，你别是机器人吧',
+      code:401
+    })
+  }
+})
+// 路由9 登出接口
+app.get('/logout', (req, res) => {
+  // 清空session
+  req.session = null
+  // 返回信息
+  res.send({
+    msg: '再见',
+    code: 200
   })
 })
 // 开启监听

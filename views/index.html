@@ -193,6 +193,11 @@
       },
       success(backData){
         console.log(backData);
+        //判断登陆状态
+        if (backData.code === 400) {
+          alert('请先登录')
+          window.location.href = './login.html'
+        }
         
         $('tbody').html(template('cq',backData))
         //页码
@@ -262,8 +267,12 @@
           }
         })
       }else{
-        alert('写不杀之恩')
+        alert('谢不杀之恩')
       }
     })
+
+    //用户名渲染到页面上
+    const username = window.location.search.split('=')[1]
+    
   })
 </script>

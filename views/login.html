@@ -46,7 +46,7 @@
               <div class="form-group">
                 <label for="userPass" class="col-sm-2 control-label">密码</label>
                 <div class="col-sm-10">
-                  <input type="password" name="userPass" value="1234" class="form-control" id="userPass" placeholder="请输入密码">
+                  <input type="password" name="userPass" class="form-control" id="password" placeholder="请输入密码">
                 </div>
               </div>
               <div class="form-group">
@@ -55,7 +55,7 @@
                   <input type="text" name="vCode" class="form-control" id="vCode" placeholder="请输入验证码">
                 </div>
                 <div class="col-sm-4">
-                  <img class='vCode' src="./lib/img/code.png" alt="">
+                  <img class='vCode' src="./captcha" alt="">
                 </div>
               </div>
               <div class="form-group">
@@ -78,3 +78,43 @@
 <script src="./lib/bootstrap/js/jquery-1.12.4.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="./lib/bootstrap/js/bootstrap.min.js"></script>
+<script src="./lib/md5/md5.min.js"></script>
+
+<script>
+  $(function(){
+    $('.vCode').click(function(){
+
+      // $(this).attr('src',`/captcha?${Math.random()}`)
+      //或者使用时间戳
+      $(this).attr('src',`/captcha?${Date.now()}`)
+    })
+    //点击登陆
+    $('.login').click(function(e){
+      e.preventDefault()
+
+      //对密码加密
+      const password = md5($('#password').val(),'westblueflower')
+
+      console.log(password);
+      
+      //设置的文本框中
+      $('#password').val(password)
+      $.ajax({
+        url:'/login',
+        type:'post',
+        data:$('form').serialize(),
+        success(backData) {
+          // alert(backData);
+          console.log(backData);
+          
+          if (backData.code === 401) {
+            alert(backData.msg)
+            $('.vCode').click()
+          }else if(backData.code === 200){
+            window.location.href = './index.html?userName='  + backData.userName
+          }
+        }
+      })
+    })
+  })
+</script>
