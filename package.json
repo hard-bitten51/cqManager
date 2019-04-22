@@ -1,0 +1,26 @@
+{
+  "name": "cqManager30",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000c\u0000q\u0000M\u0000a\u0000n\u0000a\u0000g\u0000e\u0000r\u00003\u00000\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hard-bitten51/cqManager30.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hard-bitten51/cqManager30/issues"
+  },
+  "homepage": "https://github.com/hard-bitten51/cqManager30#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mongodb": "^3.2.3",
+    "multer": "^1.4.1"
+  }
+}

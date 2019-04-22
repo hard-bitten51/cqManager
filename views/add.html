@@ -139,3 +139,37 @@
   Include all compiled plugins (below), or include individual files as needed
 -->
 <script src="./lib/bootstrap/js/bootstrap.min.js"></script>
+<script>
+    // 新增数据
+    $(function() {
+      $('.btn-add').click(function() {
+        // 获取formData
+        const sendData = new FormData($('form')[0])
+        // 提交数据
+        $.ajax({
+          url: '/heroAdd',
+          type: 'post',
+          data: sendData,
+          contentType: false,
+          processData: false,
+          success(backData) {
+            // console.log(backData);
+            alert(backData.msg)
+            setTimeout(() => {
+              window.location.href = './index.html'
+            }, 1000)
+          }
+        })
+  
+        return false
+      })
+  
+      // 图片本地预览
+      $('#heroIcon').change(function(event) {
+        console.log(event.target.files[0])
+        // console.log(event.files)
+        const url = URL.createObjectURL(event.target.files[0])
+        $('.preview').attr('src', url)
+      })
+    })
+  </script>
